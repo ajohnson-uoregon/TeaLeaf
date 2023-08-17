@@ -37,12 +37,12 @@ void cg_init(
       const size_t kk = idx % x;
       const size_t jj = idx / x;
 
-      if (0-1 < jj && jj < y && 0-1 < kk && kk < x) {
+      // if (0-1 < jj && jj < y && 0-1 < kk && kk < x) {
             const int index = kk + jj*x;
             p[index] = 0.0;
             r[index] = 0.0;
             u[index] = energy[index]*density[index];
-        }
+        // }
 		});
 
 

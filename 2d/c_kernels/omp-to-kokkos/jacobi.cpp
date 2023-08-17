@@ -88,10 +88,10 @@ void jacobi_iterate(
       const size_t kk = idx % x;
       const size_t jj = idx / x;
 
-      if (0-1 < jj && jj < y && 0-1 < kk && kk < x) {
+      // if (0-1 < jj && jj < y && 0-1 < kk && kk < x) {
             const int index = kk + jj*x;
             r[index] = u[index];
-        }
+        // }
 		});
 
 
