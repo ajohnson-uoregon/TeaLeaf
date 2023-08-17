@@ -1,12 +1,13 @@
 #include "../../shared.h"
 #include "Kokkos_Core.hpp"
+#include "shared.hpp"
 
 // Store original energy state
 void store_energy(
         int x,
         int y,
-        double* energy0,
-        double* energy)
+        KView energy0,
+        KView energy)
 {
   Kokkos::parallel_for(x*y, KOKKOS_LAMBDA (const int index)
   {

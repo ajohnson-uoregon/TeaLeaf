@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "../../shared.h"
 #include "Kokkos_Core.hpp"
+#include "shared.hpp"
 
 /*
  *		CONJUGATE GRADIENT SOLVER KERNEL
@@ -15,14 +16,14 @@ void cg_init(
         double rx,
         double ry,
         double* rro,
-        double* density,
-        double* energy,
-        double* u,
-        double* p,
-        double* r,
-        double* w,
-        double* kx,
-        double* ky)
+        KView density,
+        KView energy,
+        KView u,
+        KView p,
+        KView r,
+        KView w,
+        KView kx,
+        KView ky)
 {
     if(coefficient != CONDUCTIVITY && coefficient != RECIP_CONDUCTIVITY)
     {
@@ -43,7 +44,7 @@ void cg_init(
             u[index] = energy[index]*density[index];
         }
 		});
-	
+
 
 
 
@@ -59,7 +60,7 @@ void cg_init(
                 ? density[index] : 1.0/density[index];
         }
 		});
-	
+
 
 
 
@@ -77,7 +78,7 @@ void cg_init(
                 (2.0*w[index-x]*w[index]);
         }
 		});
-	
+
 
 
     double rro_temp = 0.0;
@@ -99,7 +100,7 @@ void cg_init(
         }
 		},
 		rro_temp);
-	
+
 
 
     // Sum locally
@@ -112,10 +113,10 @@ void cg_calc_w(
         const int y,
         const int halo_depth,
         double* pw,
-        double* p,
-        double* w,
-        double* kx,
-        double* ky)
+        KView p,
+        KView w,
+        KView kx,
+        KView ky)
 {
     double pw_temp = 0.0;
 
@@ -134,7 +135,7 @@ void cg_calc_w(
         }
 		},
 		pw_temp);
-	
+
 
 
     *pw += pw_temp;
@@ -147,10 +148,10 @@ void cg_calc_ur(
         const int halo_depth,
         const double alpha,
         double* rrn,
-        double* u,
-        double* p,
-        double* r,
-        double* w)
+        KView u,
+        KView p,
+        KView r,
+        KView w)
 {
     double rrn_temp = 0.0;
 
@@ -170,7 +171,7 @@ void cg_calc_ur(
         }
 		},
 		rrn_temp);
-	
+
 
 
     *rrn += rrn_temp;
@@ -182,8 +183,8 @@ void cg_calc_p(
         const int y,
         const int halo_depth,
         const double beta,
-        double* p,
-        double* r)
+        KView p,
+        KView r)
 {
 
 
@@ -198,6 +199,6 @@ void cg_calc_p(
             p[index] = beta*p[index] + r[index];
         }
 		});
-	
+
 
 }

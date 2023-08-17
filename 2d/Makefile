@@ -2,7 +2,7 @@
 KERNELS   = omp3
 CPROFILER = yes
 DEBUG     = no
-OPTIONS   = #-DNO_MPI
+OPTIONS   = -DNO_MPI
 CC        = gcc
 CPP       = g++
 COMPILER  = GNU

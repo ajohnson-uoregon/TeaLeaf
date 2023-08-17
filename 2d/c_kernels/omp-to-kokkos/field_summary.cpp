@@ -1,19 +1,19 @@
 #include "../../shared.h"
-
+#include "shared.hpp"
 /*
  * 		FIELD SUMMARY KERNEL
  * 		Calculates aggregates of values in field.
- */	
+ */
 
 // The field summary kernel
 void field_summary(
         const int x,
         const int y,
         const int halo_depth,
-        double* volume,
-        double* density,
-        double* energy0,
-        double* u,
+        KView volume,
+        KView density,
+        KView energy0,
+        KView u,
         double* volOut,
         double* massOut,
         double* ieOut,

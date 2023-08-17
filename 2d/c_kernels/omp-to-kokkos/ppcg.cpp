@@ -1,5 +1,6 @@
 #include "../../shared.h"
 #include "Kokkos_Core.hpp"
+#include "shared.hpp"
 
 /*
  *		PPCG SOLVER KERNEL
@@ -11,8 +12,8 @@ void ppcg_init(
         const int y,
         const int halo_depth,
         double theta,
-        double* r,
-        double* sd)
+        KView r,
+        KView sd)
 {
 
 
@@ -26,7 +27,7 @@ void ppcg_init(
             sd[index] = r[index] / theta;
         }
 		});
-	
+
 
 }
 
@@ -37,11 +38,11 @@ void ppcg_inner_iteration(
         const int halo_depth,
         double alpha,
         double beta,
-        double* u,
-        double* r,
-        double* kx,
-        double* ky,
-        double* sd)
+        KView u,
+        KView r,
+        KView kx,
+        KView ky,
+        KView sd)
 {
 
 
@@ -57,7 +58,7 @@ void ppcg_inner_iteration(
             u[index] += sd[index];
         }
 		});
-	
+
 
 
 
@@ -72,6 +73,6 @@ void ppcg_inner_iteration(
             sd[index] = alpha*sd[index] + beta*r[index];
         }
 		});
-	
+
 
 }

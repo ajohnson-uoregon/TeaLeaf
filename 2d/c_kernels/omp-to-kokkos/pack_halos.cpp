@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "../../shared.h"
+#include "shared.hpp"
 
 // Packs left data into buffer.
 void pack_left(
@@ -7,7 +8,7 @@ void pack_left(
         const int y,
         const int depth,
         const int halo_depth,
-        double* field,
+        KView field,
         double* buffer)
 {
 #pragma omp parallel for
@@ -27,7 +28,7 @@ void pack_right(
         const int y,
         const int depth,
         const int halo_depth,
-        double* field,
+        KView field,
         double* buffer)
 {
 #pragma omp parallel for
@@ -47,7 +48,7 @@ void pack_top(
         const int y,
         const int depth,
         const int halo_depth,
-        double* field,
+        KView field,
         double* buffer)
 {
     const int x_inner = x-2*halo_depth;
@@ -69,7 +70,7 @@ void pack_bottom(
         const int y,
         const int depth,
         const int halo_depth,
-        double* field,
+        KView field,
         double* buffer)
 {
     const int x_inner = x-2*halo_depth;
@@ -91,7 +92,7 @@ void unpack_left(
         const int y,
         const int depth,
         const int halo_depth,
-        double* field,
+        KView field,
         double* buffer)
 {
 #pragma omp parallel for
@@ -111,7 +112,7 @@ void unpack_right(
         const int y,
         const int depth,
         const int halo_depth,
-        double* field,
+        KView field,
         double* buffer)
 {
 #pragma omp parallel for
@@ -131,7 +132,7 @@ void unpack_top(
         const int y,
         const int depth,
         const int halo_depth,
-        double* field,
+        KView field,
         double* buffer)
 {
     const int x_inner = x-2*halo_depth;
@@ -153,7 +154,7 @@ void unpack_bottom(
         const int y,
         const int depth,
         const int halo_depth,
-        double* field,
+        KView field,
         double* buffer)
 {
     const int x_inner = x-2*halo_depth;
@@ -169,7 +170,7 @@ void unpack_bottom(
     }
 }
 
-typedef void (*pack_kernel_f)(int,int,int,int,double*,double*);
+typedef void (*pack_kernel_f)(int,int,int,int,KView,double*);
 
 // Either packs or unpacks data from/to buffers.
 void pack_or_unpack(
@@ -179,7 +180,7 @@ void pack_or_unpack(
         const int halo_depth,
         const int face,
         bool pack,
-        double *field,
+        KView field,
         double* buffer)
 {
     pack_kernel_f kernel = NULL;
@@ -204,4 +205,3 @@ void pack_or_unpack(
 
     kernel(x, y, depth, halo_depth, field, buffer);
 }
-

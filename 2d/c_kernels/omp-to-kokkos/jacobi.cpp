@@ -2,6 +2,7 @@
 #include <math.h>
 #include "../../shared.h"
 #include "Kokkos_Core.hpp"
+#include "shared.hpp"
 
 /*
  *		JACOBI SOLVER KERNEL
@@ -15,12 +16,12 @@ void jacobi_init(
         const int coefficient,
         double rx,
         double ry,
-        double* density,
-        double* energy,
-        double* u0,
-        double* u,
-        double* kx,
-        double* ky)
+        KView density,
+        KView energy,
+        KView u0,
+        KView u,
+        KView kx,
+        KView ky)
 {
     if(coefficient < CONDUCTIVITY && coefficient < RECIP_CONDUCTIVITY)
     {
@@ -41,7 +42,7 @@ void jacobi_init(
             u[index] = temp;
         }
 		});
-	
+
 
 
 
@@ -64,7 +65,7 @@ void jacobi_init(
             ky[index] = ry*(densityDown+densityCentre)/(2.0*densityDown*densityCentre);
         }
 		});
-	
+
 
 }
 
@@ -74,11 +75,11 @@ void jacobi_iterate(
         const int y,
         const int halo_depth,
         double* error,
-        double* kx,
-        double* ky,
-        double* u0,
-        double* u,
-        double* r)
+        KView kx,
+        KView ky,
+        KView u0,
+        KView u,
+        KView r)
 {
 
 
@@ -92,7 +93,7 @@ void jacobi_iterate(
             r[index] = u[index];
         }
 		});
-	
+
 
 
     double err=0.0;
@@ -115,7 +116,7 @@ void jacobi_iterate(
         }
 		},
 		err);
-	
+
 
 
     *error = err;

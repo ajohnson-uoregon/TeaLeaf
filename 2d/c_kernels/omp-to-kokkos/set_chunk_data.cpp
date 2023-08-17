@@ -1,5 +1,6 @@
 #include "../../settings.h"
 #include "../../shared.h"
+#include "shared.hpp"
 
 /*
  * 		SET CHUNK DATA KERNEL
@@ -7,19 +8,19 @@
  */
 
 // Extended kernel for the chunk initialisation
-void set_chunk_data( 
+void set_chunk_data(
         Settings* settings,
         int x,
         int y,
         int left,
         int bottom,
- 	    double* cell_x,
-		double* cell_y,
-		double* vertex_x,
-		double* vertex_y,
-		double* volume,
-		double* x_area,
-		double* y_area)
+ 	    KView cell_x,
+		KView cell_y,
+		KView vertex_x,
+		KView vertex_y,
+		KView volume,
+		KView x_area,
+		KView y_area)
 {
     double x_min = settings->grid_x_min + settings->dx*(double)left;
     double y_min = settings->grid_y_min + settings->dy*(double)bottom;
@@ -51,4 +52,3 @@ void set_chunk_data(
 		y_area[ii] = settings->dx;
 	}
 }
-

@@ -1,22 +1,23 @@
 #include <stdlib.h>
 #include "../../shared.h"
+#include "shared.hpp"
 
 /*
  * 		LOCAL HALOS KERNEL
- */	
+ */
 
-void update_left(const int x, const int y, 
-        const int halo_depth, const int depth, double* buffer);
-void update_right(const int x, const int y, 
-        const int halo_depth, const int depth, double* buffer);
-void update_top(const int x, const int y, 
-        const int halo_depth, const int depth, double* buffer); 
-void update_bottom(const int x, const int y, 
-        const int halo_depth, const int depth, double* buffer);
-void update_face(const int x, const int y, const int halo_depth, 
-        const int* chunk_neighbours, const int depth, double* buffer);
+void update_left(const int x, const int y,
+        const int halo_depth, const int depth, KView buffer);
+void update_right(const int x, const int y,
+        const int halo_depth, const int depth, KView buffer);
+void update_top(const int x, const int y,
+        const int halo_depth, const int depth, KView buffer);
+void update_bottom(const int x, const int y,
+        const int halo_depth, const int depth, KView buffer);
+void update_face(const int x, const int y, const int halo_depth,
+        const int* chunk_neighbours, const int depth, KView buffer);
 
-typedef void (*update_kernel)(int,double*);
+typedef void (*update_kernel)(int,KView);
 
 // The kernel for updating halos locally
 void local_halos(
@@ -26,12 +27,12 @@ void local_halos(
         const int halo_depth,
         const int* chunk_neighbours,
         const bool* fields_to_exchange,
-        double* density,
-        double* energy0,
-        double* energy,
-        double* u,
-        double* p,
-        double* sd)
+        KView density,
+        KView energy0,
+        KView energy,
+        KView u,
+        KView p,
+        KView sd)
 {
 #define LAUNCH_UPDATE(index, buffer)\
     if(fields_to_exchange[index])\
@@ -51,11 +52,11 @@ void local_halos(
 // Updates faces in turn.
 void update_face(
         const int x,
-        const int y, 
+        const int y,
         const int halo_depth,
         const int* chunk_neighbours,
         const int depth,
-        double* buffer)
+        KView buffer)
 {
 #define UPDATE_FACE(face, updateKernel) \
     if(chunk_neighbours[face] == EXTERNAL_FACE)\
@@ -74,8 +75,8 @@ void update_left(
         const int x,
         const int y,
         const int halo_depth,
-        const int depth, 
-        double* buffer)
+        const int depth,
+        KView buffer)
 {
 #pragma omp parallel for
     for(int jj = halo_depth; jj < y-halo_depth; ++jj)
@@ -83,7 +84,7 @@ void update_left(
         for(int kk = 0; kk < depth; ++kk)
         {
             int base = jj*x;
-            buffer[base+(halo_depth-kk-1)] = buffer[base+(halo_depth+kk)];			
+            buffer[base+(halo_depth-kk-1)] = buffer[base+(halo_depth+kk)];
         }
     }
 }
@@ -94,7 +95,7 @@ void update_right(
         const int y,
         const int halo_depth,
         const int depth,
-        double* buffer)
+        KView buffer)
 {
 #pragma omp parallel for
     for(int jj = halo_depth; jj < y-halo_depth; ++jj)
@@ -102,7 +103,7 @@ void update_right(
         for(int kk = 0; kk < depth; ++kk)
         {
             int base = jj*x;
-            buffer[base+(x-halo_depth+kk)] 
+            buffer[base+(x-halo_depth+kk)]
                 = buffer[base+(x-halo_depth-1-kk)];
         }
     }
@@ -113,8 +114,8 @@ void update_top(
         const int x,
         const int y,
         const int halo_depth,
-        const int depth, 
-        double* buffer)
+        const int depth,
+        KView buffer)
 {
     for(int jj = 0; jj < depth; ++jj)
     {
@@ -122,7 +123,7 @@ void update_top(
         for(int kk = halo_depth; kk < x-halo_depth; ++kk)
         {
             int base = kk;
-            buffer[base+(y-halo_depth+jj)*x] 
+            buffer[base+(y-halo_depth+jj)*x]
                 = buffer[base+(y-halo_depth-1-jj)*x];
         }
     }
@@ -133,8 +134,8 @@ void update_bottom(
         const int x,
         const int y,
         const int halo_depth,
-        const int depth, 
-        double* buffer)
+        const int depth,
+        KView buffer)
 {
     for(int jj = 0; jj < depth; ++jj)
     {
@@ -142,9 +143,8 @@ void update_bottom(
         for(int kk = halo_depth; kk < x-halo_depth; ++kk)
         {
             int base = kk;
-            buffer[base+(halo_depth-jj-1)*x] 
+            buffer[base+(halo_depth-jj-1)*x]
                 = buffer[base+(halo_depth+jj)*x];
         }
     }
 }
-

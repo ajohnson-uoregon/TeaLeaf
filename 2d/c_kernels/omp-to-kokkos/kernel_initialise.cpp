@@ -2,6 +2,7 @@
 #include "../../shared.h"
 #include <stdlib.h>
 #include "Kokkos_Core.hpp"
+#include "shared.hpp"
 
 // Allocates, and zeroes an individual buffer
 void allocate_buffer(double** a, int x, int y)
@@ -26,13 +27,13 @@ void allocate_buffer(double** a, int x, int y)
 
 // Allocates all of the field buffers
 void kernel_initialise(
-        Settings* settings, int x, int y, double** density0,
-        double** density, double** energy0, double** energy, double** u,
-        double** u0, double** p, double** r, double** mi,
-        double** w, double** kx, double** ky, double** sd,
-        double** volume, double** x_area, double** y_area, double** cell_x,
-        double** cell_y, double** cell_dx, double** cell_dy, double** vertex_dx,
-        double** vertex_dy, double** vertex_x, double** vertex_y,
+        Settings* settings, int x, int y, KView* density0,
+        KView* density, KView* energy0, KView* energy, KView* u,
+        KView* u0, KView* p, KView* r, KView* mi,
+        KView* w, KView* kx, KView* ky, KView* sd,
+        KView* volume, KView* x_area, KView* y_area, KView* cell_x,
+        KView* cell_y, KView* cell_dx, KView* cell_dy, KView* vertex_dx,
+        KView* vertex_dy, KView* vertex_x, KView* vertex_y,
         double** cg_alphas, double** cg_betas, double** cheby_alphas,
         double** cheby_betas)
 {
@@ -40,30 +41,34 @@ void kernel_initialise(
             "Performing this solve with the OpenMP 3.0 %s solver\n",
             settings->solver_name);
 
-    allocate_buffer(density0, x, y);
-    allocate_buffer(density, x, y);
-    allocate_buffer(energy0, x, y);
-    allocate_buffer(energy, x, y);
-    allocate_buffer(u, x, y);
-    allocate_buffer(u0, x, y);
-    allocate_buffer(p, x, y);
-    allocate_buffer(r, x, y);
-    allocate_buffer(mi, x, y);
-    allocate_buffer(w, x, y);
-    allocate_buffer(kx, x, y);
-    allocate_buffer(ky, x, y);
-    allocate_buffer(sd, x, y);
-    allocate_buffer(volume, x, y);
-    allocate_buffer(x_area, x+1, y);
-    allocate_buffer(y_area, x, y+1);
-    allocate_buffer(cell_x, x, 1);
-    allocate_buffer(cell_y, 1, y);
-    allocate_buffer(cell_dx, x, 1);
-    allocate_buffer(cell_dy, 1, y);
-    allocate_buffer(vertex_dx, x+1, 1);
-    allocate_buffer(vertex_dy, 1, y+1);
-    allocate_buffer(vertex_x, x+1, 1);
-    allocate_buffer(vertex_y, 1, y+1);
+    Kokkos::initialize();
+
+    new(density0) KView("density0", x*y);
+    new(density) KView("density", x*y);
+    new(energy0) KView("energy0", x*y);
+    new(energy) KView("energy", x*y);
+    new(u) KView("u", x*y);
+    new(u0) KView("u0", x*y);
+    new(p) KView("p", x*y);
+    new(r) KView("r", x*y);
+    new(mi) KView("mi", x*y);
+    new(w) KView("w", x*y);
+    new(kx) KView("kx", x*y);
+    new(ky) KView("ky", x*y);
+    new(sd) KView("sd", x*y);
+    new(volume) KView("volume", x*y);
+    new(x_area) KView("x_area", (x+1)*y);
+    new(y_area) KView("y_area", x*(y+1));
+    new(cell_x) KView("cell_x", x);
+    new(cell_y) KView("cell_y", y);
+    new(cell_dx) KView("cell_dx", x);
+    new(cell_dy) KView("cell_dy", y);
+    new(vertex_dx) KView("vertex_dx", (x+1));
+    new(vertex_dy) KView("vertex_dy", (y+1));
+    new(vertex_x) KView("vertex_x", (x+1));
+    new(vertex_y) KView("vertex_y", (y+1));
+
+
     allocate_buffer(cg_alphas, settings->max_iters, 1);
     allocate_buffer(cg_betas, settings->max_iters, 1);
     allocate_buffer(cheby_alphas, settings->max_iters, 1);
@@ -71,41 +76,19 @@ void kernel_initialise(
 }
 
 void kernel_finalise(
-        double* density0, double* density, double* energy0, double* energy,
-        double* u, double* u0, double* p, double* r, double* mi,
-        double* w, double* kx, double* ky, double* sd,
-        double* volume, double* x_area, double* y_area, double* cell_x,
-        double* cell_y, double* cell_dx, double* cell_dy, double* vertex_dx,
-        double* vertex_dy, double* vertex_x, double* vertex_y,
+        KView density0, KView density, KView energy0, KView energy,
+        KView u, KView u0, KView p, KView r, KView mi,
+        KView w, KView kx, KView ky, KView sd,
+        KView volume, KView x_area, KView y_area, KView cell_x,
+        KView cell_y, KView cell_dx, KView cell_dy, KView vertex_dx,
+        KView vertex_dy, KView vertex_x, KView vertex_y,
         double* cg_alphas, double* cg_betas, double* cheby_alphas,
         double* cheby_betas)
 {
-    free(density0);
-    free(density);
-    free(energy0);
-    free(energy);
-    free(u);
-    free(u0);
-    free(p);
-    free(r);
-    free(mi);
-    free(w);
-    free(kx);
-    free(ky);
-    free(sd);
-    free(volume);
-    free(x_area);
-    free(y_area);
-    free(cell_x);
-    free(cell_y);
-    free(cell_dx);
-    free(cell_dy);
-    free(vertex_dx);
-    free(vertex_dy);
-    free(vertex_x);
-    free(vertex_y);
     free(cg_alphas);
     free(cg_betas);
     free(cheby_alphas);
     free(cheby_betas);
+
+    Kokkos::finalize();
 }

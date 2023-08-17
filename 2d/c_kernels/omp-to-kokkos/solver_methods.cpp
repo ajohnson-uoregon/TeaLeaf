@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "../../shared.h"
 #include "Kokkos_Core.hpp"
+#include "shared.hpp"
 
 /*
  *		SHARED SOLVER METHODS
@@ -11,8 +12,8 @@ void copy_u(
         const int x,
         const int y,
         const int halo_depth,
-        double* u0,
-        double* u)
+        KView u0,
+        KView u)
 {
 
 
@@ -26,7 +27,7 @@ void copy_u(
             u0[index] = u[index];
         }
 		});
-	
+
 
 }
 
@@ -35,11 +36,11 @@ void calculate_residual(
         const int x,
         const int y,
         const int halo_depth,
-        double* u,
-        double* u0,
-        double* r,
-        double* kx,
-        double* ky)
+        KView u,
+        KView u0,
+        KView r,
+        KView kx,
+        KView ky)
 {
 
 
@@ -54,7 +55,7 @@ void calculate_residual(
             r[index] = u0[index] - smvp;
         }
 		});
-	
+
 
 }
 
@@ -63,7 +64,7 @@ void calculate_2norm(
         const int x,
         const int y,
         const int halo_depth,
-        double* buffer,
+        KView buffer,
         double* norm)
 {
     double norm_temp = 0.0;
@@ -81,7 +82,7 @@ void calculate_2norm(
         }
 		},
 		norm_temp);
-	
+
 
 
     *norm += norm_temp;
@@ -92,9 +93,9 @@ void finalise(
         const int x,
         const int y,
         const int halo_depth,
-        double* energy,
-        double* density,
-        double* u)
+        KView energy,
+        KView density,
+        KView u)
 {
 
 
@@ -108,6 +109,6 @@ void finalise(
             energy[index] = u[index]/density[index];
         }
 		});
-	
+
 
 }

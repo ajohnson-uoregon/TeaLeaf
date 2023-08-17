@@ -1,5 +1,6 @@
 #include <math.h>
 #include "../../settings.h"
+#include "shared.hpp"
 
 /*
  *      SET CHUNK STATE KERNEL
@@ -10,13 +11,13 @@
 void set_chunk_state(
         int x,
         int y,
-        double* vertex_x,
-        double* vertex_y,
-        double* cell_x,
-        double* cell_y,
-        double* density,
-        double* energy0,
-        double* u,
+        KView vertex_x,
+        KView vertex_y,
+        KView cell_x,
+        KView cell_y,
+        KView density,
+        KView energy0,
+        KView u,
         const int num_states,
         State* states)
 {
@@ -25,21 +26,21 @@ void set_chunk_state(
     {
         energy0[ii] = states[0].energy;
         density[ii] = states[0].density;
-    }	
+    }
 
     // Apply all of the states in turn
     for(int ss = 1; ss < num_states; ++ss)
     {
-        for(int jj = 0; jj < y; ++jj) 
+        for(int jj = 0; jj < y; ++jj)
         {
-            for(int kk = 0; kk < x; ++kk) 
+            for(int kk = 0; kk < x; ++kk)
             {
                 int apply_state = 0;
 
                 if(states[ss].geometry == RECTANGULAR)
                 {
                     apply_state = (
-                            vertex_x[kk+1] >= states[ss].x_min && 
+                            vertex_x[kk+1] >= states[ss].x_min &&
                             vertex_x[kk] < states[ss].x_max    &&
                             vertex_y[jj+1] >= states[ss].y_min &&
                             vertex_y[jj] < states[ss].y_max);
@@ -73,13 +74,12 @@ void set_chunk_state(
     }
 
     // Set an initial state for u
-    for(int jj = 1; jj != y-1; ++jj) 
+    for(int jj = 1; jj != y-1; ++jj)
     {
-        for(int kk = 1; kk != x-1; ++kk) 
+        for(int kk = 1; kk != x-1; ++kk)
         {
             const int index = kk + jj*x;
             u[index] = energy0[index]*density[index];
         }
     }
 }
-

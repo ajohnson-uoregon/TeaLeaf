@@ -1,6 +1,8 @@
 #pragma once
 
-typedef double* FieldBufferType;
+#include "shared.hpp"
+
+typedef KView FieldBufferType;
 
 // Empty extension point
 typedef struct ChunkExtension

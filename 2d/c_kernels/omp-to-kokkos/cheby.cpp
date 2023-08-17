@@ -1,5 +1,6 @@
 #include "../../shared.h"
 #include "Kokkos_Core.hpp"
+#include "shared.hpp"
 
 /*
  *		CHEBYSHEV SOLVER KERNEL
@@ -10,8 +11,8 @@ void cheby_calc_u(
         const int x,
         const int y,
         const int halo_depth,
-        double* u,
-        double* p)
+        KView u,
+        KView p)
 {
 
 
@@ -25,7 +26,7 @@ void cheby_calc_u(
             u[index] += p[index];
         }
 		});
-	
+
 
 }
 
@@ -35,13 +36,13 @@ void cheby_init(
         const int y,
         const int halo_depth,
         const double theta,
-        double* u,
-        double* u0,
-        double* p,
-        double* r,
-        double* w,
-        double* kx,
-        double* ky)
+        KView u,
+        KView u0,
+        KView p,
+        KView r,
+        KView w,
+        KView kx,
+        KView ky)
 {
 
 
@@ -58,7 +59,7 @@ void cheby_init(
             p[index] = r[index] / theta;
         }
 		});
-	
+
 
 
     cheby_calc_u(x, y, halo_depth, u, p);
@@ -71,13 +72,13 @@ void cheby_iterate(
         const int halo_depth,
         double alpha,
         double beta,
-        double* u,
-        double* u0,
-        double* p,
-        double* r,
-        double* w,
-        double* kx,
-        double* ky)
+        KView u,
+        KView u0,
+        KView p,
+        KView r,
+        KView w,
+        KView kx,
+        KView ky)
 {
 
 
@@ -94,7 +95,7 @@ void cheby_iterate(
             p[index] = alpha*p[index] + beta*r[index];
         }
 		});
-	
+
 
 
     cheby_calc_u(x, y, halo_depth, u, p);
